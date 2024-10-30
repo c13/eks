@@ -42,6 +42,9 @@ spec:
       labels:
         intent: apps
     spec:
+      limits:
+        cpu: 100
+        memory: 100Gi
       requirements:
         - key: kubernetes.io/arch
           operator: In
@@ -66,7 +69,14 @@ spec:
           memory: 100Mi
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 1m
+    consolidateAfter: 20m
+    budgets:
+    - nodes: "1"
+      schedule: "0 9 * * *"
+      duration: 8h
+    - nodes: "20%"
+      schedule: "0 17 * * *"
+      duration: 16h
 
 YAML
   depends_on = [

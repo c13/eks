@@ -8,7 +8,7 @@
 
 ### Preparing to create cluster
 
-Apply terraform from main to crete Cloudtrail logs and bucket for them.
+You could apply terraform from main folder to create Cloudtrail logs and bucket for AWS api logs.
 
 #### Create an EKS Cluster using Terraform (Optional)
 
@@ -19,7 +19,7 @@ Also it install cluster autoscaler, prometheus monitoring stack with grafana, ng
 To create the cluster, clone this repository and open the `cluster/terraform` folder. Then, run the following commands:
 
 ```
-cd cluster/terraform
+cd cluster
 helm registry logout public.ecr.aws
 export TF_VAR_region=$AWS_REGION
 terraform init
@@ -54,3 +54,35 @@ NAME                       READY STATUS  RESTARTS AGE
 karpenter-5f97c944df-bm85s 1/1   Running 0        15m
 karpenter-5f97c944df-xr9jf 1/1   Running 0        15m
 ```
+
+To fix problmes with grafana pvc you need to delete oudated storage class and add new gp3
+```
+kubectl delete storageclasses.storage.k8s.io gp2
+kubectl apply -f cluster/storage.yaml
+```
+
+## Distruption budget
+
+Karpenter's actions like consolidation, drift detection and `expireAfter`, allow users to optimize for cost in the case of consolidation, keep up with the latest security patches and desired configuration, or ensure governance best practices, like refreshing instances every N days. These actions cause, as a trade-off, some level of disruption in the cluster caused by expected causes. To control the trade-off between, for example, being on the latest AMI (drift detection) and nodes restarting when that happens we can use disruption controls and configure `disruption budgets` in the Karpenter `NodePool` configuration. If no disruption budget is configured their is a default budget with `nodes: 10%`. When calculating if a budget will block nodes from disruption, Karpenter checks if the number of nodes being deleted is greater than the number of allowed disruptions. Budgets take into consideration voluntary disruptions through expiration, drift, emptiness and consolidation. If there are multiple budgets defined in the `NodePool`, Karpenter will honour the most restrictive of the budgets.
+
+By applying a combination of disruptions budgets and Pod Disruptions Budgets (PDBs) we can get both application and platform voluntary disruption controls, this can help you move towards continually operations to protect workload availability.
+
+### Limit Disruptions to a Percentage of Nodes
+
+To prevent disruptions from affecting more than a certain percentage of nodes in a NodePool
+
+I have configured to allow only 1 disruption per 20 minutes during peak hours.
+
+This configuration ensures that Karpenter avoids disrupting workloads during peak traffic periods. Specifically, it prevents disruptions from UTC 9:00 for an 8-hour window and limits disruptions to 20% outside of this window.
+
+```
+    budgets:
+    - nodes: "1"
+      schedule: "0 9 * * *"
+      duration: 8h
+    - nodes: "20%"
+      schedule: "0 17 * * *"
+      duration: 16h
+```
+
+Please, read deploy/README.md to deploy workload after cluster successfully created.
