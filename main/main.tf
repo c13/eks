@@ -1,3 +1,8 @@
+resource "aws_cloudwatch_log_group" "eks_fluentbit_logs" {
+  name              = "/aws/eks/karpenter-blueprints/aws-fluentbit-logs"
+  retention_in_days = 7 # change retention as needed
+}
+
 resource "aws_cloudtrail" "trail" {
   cloud_watch_logs_role_arn  = aws_iam_role.cloudtrail_cloudwatch_events_role.arn
   cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.cwl_loggroup.arn}:*"

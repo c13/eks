@@ -8,7 +8,7 @@
 
 ### Preparing to create cluster
 
-You could apply terraform from main folder to create Cloudtrail logs and bucket for AWS api logs.
+You could apply terraform from main folder to create Cloudwatch log group for EKS and Cloudtrail logs and bucket for AWS api logs.
 
 #### Create an EKS Cluster using Terraform
 
@@ -23,10 +23,10 @@ cd cluster
 helm registry logout public.ecr.aws
 export TF_VAR_region=$AWS_REGION
 terraform init
-terraform apply -target="module.vpc" -auto-approve
-terraform apply -target="module.ecr" -auto-approve
-terraform apply -target="module.eks" -auto-approve
-terraform apply --auto-approve
+terraform apply -target="module.vpc" -auto-approve -var-file="testing.tfvars"
+terraform apply -target="module.ecr" -auto-approve -var-file="testing.tfvars"
+terraform apply -target="module.eks" -auto-approve -var-file="testing.tfvars"
+terraform apply --auto-approve -var-file="testing.tfvars"
 ```
 
 Before you continue, you need to enable your AWS account to launch Spot instances if you haven't launch any yet. To do so, create the [service-linked role for Spot](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-requests.html#service-linked-roles-spot-instance-requests) by running the following command:
