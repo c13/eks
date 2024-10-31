@@ -21,14 +21,8 @@ variable "dns_zone" {
   type        = string
 }
 
-variable "grafana_password" {
-  description = "Grafana default password"
+variable "capacity_type" {
+  description = "Capacity type for EKS managed node group"
   type        = string
-  default     = "prom-operator"
-}
-
-variable "grafana_host" {
-  description = "Grafana default host"
-  type        = string
-  default     = "grafana.example.com"
+  default     = "ON-DEMAND"
 }

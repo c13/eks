@@ -102,7 +102,7 @@ module "eks" {
     mg_5 = {
       node_group_name = "managed-ondemand"
       instance_types  = ["m4.large", "t2.large", "t3.large", "t3a.large"]
-      capacity_type   = "SPOT"
+      capacity_type   = "${var.capacity_type}"
 
       create_security_group = false
 

@@ -8,6 +8,8 @@
 
 ### Preparing to create cluster
 
+Before running terraform you can change all domains to yours by running Replace in files command. Replace zetarin.org to your domain name.
+
 You could apply terraform from main folder to create Cloudwatch log group for EKS and Cloudtrail logs and bucket for AWS api logs.
 
 #### Create an EKS Cluster using Terraform
@@ -16,7 +18,21 @@ The Terraform template included in this repository is going to create a VPC, an 
 Additionally, the template configures the Karpenter node role to the `aws-auth` configmap to allow nodes to connect, and creates an On-Demand managed node group for the `kube-system` and `karpenter` namespaces.
 Also it creates ecr with public repo cache, install cluster autoscaler, external-dns, prometheus monitoring stack with grafana, nginx ingress and aws load balancer controller
 
-To create the cluster, clone this repository and open the `cluster/terraform` folder. Then, run the following commands:
+To create the cluster, clone this repository and open the `cluster/terraform` folder.
+
+Then, create file with variables testing.tfvars
+
+```
+# generate new token here https://app.docker.com/settings/personal-access-tokens
+# pass your username and token in variable
+docker_secret    = { username = "username", accessToken = "token" }
+# pass hosted zone id from here https://us-east-1.console.aws.amazon.com/route53/v2/hostedzones?region=us-east-1#
+dns_zone         = ""
+# for testing purpose
+capacity_type    = "SPOT"
+```
+
+Finally, run the following commands:
 
 ```
 cd cluster

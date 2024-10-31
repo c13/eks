@@ -92,9 +92,12 @@ grafana:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: nginx
+      kubernetes.io/ingress.class: alb
       external-dns.alpha.kubernetes.io/hostname: grafana-eks.zetarin.org
       alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-2016-08
     hosts:
       - grafana-eks.zetarin.org
     path: /
