@@ -10,11 +10,11 @@
 
 You could apply terraform from main folder to create Cloudtrail logs and bucket for AWS api logs.
 
-#### Create an EKS Cluster using Terraform (Optional)
+#### Create an EKS Cluster using Terraform
 
 The Terraform template included in this repository is going to create a VPC, an EKS control plane, and a Kubernetes service account along with the IAM role and associate them using IAM Roles for Service Accounts (IRSA) to let Karpenter launch instances. 
 Additionally, the template configures the Karpenter node role to the `aws-auth` configmap to allow nodes to connect, and creates an On-Demand managed node group for the `kube-system` and `karpenter` namespaces.
-Also it install cluster autoscaler, prometheus monitoring stack with grafana, nginx ingress and aws load balancer controller
+Also it creates ecr with public repo cache, install cluster autoscaler, external-dns, prometheus monitoring stack with grafana, nginx ingress and aws load balancer controller
 
 To create the cluster, clone this repository and open the `cluster/terraform` folder. Then, run the following commands:
 
@@ -24,6 +24,7 @@ helm registry logout public.ecr.aws
 export TF_VAR_region=$AWS_REGION
 terraform init
 terraform apply -target="module.vpc" -auto-approve
+terraform apply -target="module.ecr" -auto-approve
 terraform apply -target="module.eks" -auto-approve
 terraform apply --auto-approve
 ```
@@ -43,7 +44,7 @@ An error occurred (InvalidInput) when calling the CreateServiceLinkedRole operat
 Once complete (after waiting about 15 minutes), run the following command to update the `kube.config` file to interact with the cluster through `kubectl`:
 
 ```
-aws eks --region $AWS_REGION update-kubeconfig --name karpenter-blueprints
+aws eks --region $AWS_REGION update-kubeconfig --name karpenter
 ```
 
 You need to make sure you can interact with the cluster and that the Karpenter pods are running:
@@ -55,10 +56,10 @@ karpenter-5f97c944df-bm85s 1/1   Running 0        15m
 karpenter-5f97c944df-xr9jf 1/1   Running 0        15m
 ```
 
-To fix problmes with grafana pvc you need to delete oudated storage class and add new gp3
+You might need to review Karpenter logs, so let's create an alias for that to read logs by simply running `kl`:
+
 ```
-kubectl delete storageclasses.storage.k8s.io gp2
-kubectl apply -f cluster/storage.yaml
+alias kl="kubectl -n karpenter logs -l app.kubernetes.io/name=karpenter --all-containers=true -f --tail=20"
 ```
 
 ## Distruption budget

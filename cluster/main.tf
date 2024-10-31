@@ -150,7 +150,7 @@ module "eks_blueprints_addons" {
       },
       {
         name  = "enableServiceMutatorWebhook"
-        value = "false"
+        value = "true"
       },
       {
         name  = "resources.requests.cpu"
@@ -210,6 +210,16 @@ module "eks_blueprints_addons" {
     values        = [templatefile("${path.root}/helm/autoscaler/values.yaml", {})]
   }
 
+  enable_external_dns = true
+  external_dns = {
+    name          = "external-dns"
+    chart_version = "1.15.0"
+    repository    = "https://kubernetes-sigs.github.io/external-dns/"
+    namespace     = "external-dns"
+    values        = [templatefile("${path.root}/helm/external-dns/values.yaml", {})]
+  }
+  external_dns_route53_zone_arns = ["arn:aws:route53:::hostedzone/${var.dns_zone}"]
+
   enable_karpenter = true
   karpenter = {
     chart_version       = "1.0.1"
@@ -255,6 +265,32 @@ module "aws-auth" {
       username = "system:node:{{EC2PrivateDNSName}}"
       groups   = ["system:bootstrappers", "system:nodes"]
     },
+  ]
+}
+
+resource "kubernetes_storage_class_v1" "gp3" {
+  metadata {
+    name = "gp3"
+
+    annotations = {
+      # Annotation to set gp3 as default storage class
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
+  }
+
+  storage_provisioner    = "ebs.csi.aws.com"
+  allow_volume_expansion = true
+  reclaim_policy         = "Delete"
+  volume_binding_mode    = "WaitForFirstConsumer"
+
+  parameters = {
+    encrypted = true
+    fsType    = "ext4"
+    type      = "gp3"
+  }
+
+  depends_on = [
+    module.eks_blueprints_addons
   ]
 }
 

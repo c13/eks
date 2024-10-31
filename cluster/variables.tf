@@ -6,3 +6,17 @@ variable "region" {
   type        = string
   default     = "us-east-1"
 }
+
+variable "docker_secret" {
+  description = "Inform your docker username and accessToken to allow pullTroughCache to get images from Docker.io. E.g. `{username='user',accessToken='pass'}`"
+  type = object({
+    username    = string
+    accessToken = string
+  })
+  sensitive = true
+}
+
+variable "dns_zone" {
+  description = "DNS zone to create records"
+  type        = string
+}
