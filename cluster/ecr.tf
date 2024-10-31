@@ -2,7 +2,7 @@ module "secrets_manager" {
   source  = "terraform-aws-modules/secrets-manager/aws"
   version = "~> 1.1"
 
-  name                    = "ecr-pullthroughcache/docker"
+  name                    = "ecr-pullthroughcache/docker1"
   secret_string           = jsonencode(var.docker_secret)
   recovery_window_in_days = 7
 }
@@ -45,5 +45,9 @@ module "ecr" {
         },
       ]
     }
+  ]
+
+  depends_on = [
+    module.secrets_manager
   ]
 }

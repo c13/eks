@@ -92,7 +92,7 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  create_cloudwatch_log_group              = false
+  create_cloudwatch_log_group              = true
   create_cluster_security_group            = false
   create_node_security_group               = false
   authentication_mode                      = "API_AND_CONFIG_MAP"
@@ -102,7 +102,7 @@ module "eks" {
     mg_5 = {
       node_group_name = "managed-ondemand"
       instance_types  = ["m4.large", "t2.large", "t3.large", "t3a.large"]
-      capacity_type   = "SPOT"
+#      capacity_type   = "SPOT"
 
       create_security_group = false
 

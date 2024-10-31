@@ -8,7 +8,7 @@ variable "region" {
 }
 
 variable "docker_secret" {
-  description = "Inform your docker username and accessToken to allow pullTroughCache to get images from Docker.io. E.g. `{username='user',accessToken='pass'}`"
+  description = "Docker username and accessToken to allow pullTroughCache to get images from Docker.io. E.g. `{username='user',accessToken='pass'}`"
   type = object({
     username    = string
     accessToken = string
@@ -19,4 +19,16 @@ variable "docker_secret" {
 variable "dns_zone" {
   description = "DNS zone to create records"
   type        = string
+}
+
+variable "grafana_password" {
+  description = "Grafana default password"
+  type        = string
+  default     = "prom-operator"
+}
+
+variable "grafana_host" {
+  description = "Grafana default host"
+  type        = string
+  default     = "grafana.example.com"
 }
