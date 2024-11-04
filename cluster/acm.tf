@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "grafana" {
   domain_name       = "grafana-eks.zetarin.org"
-  validation_method = "DNS"  # or "EMAIL" based on your preferred method
+  validation_method = "DNS" # or "EMAIL" based on your preferred method
 
   subject_alternative_names = [
     "grafana.zetarin.org"
@@ -16,7 +16,7 @@ resource "aws_route53_record" "grafana" {
     }
   }
 
-  zone_id = "${var.dns_zone}"
+  zone_id = var.dns_zone
   name    = each.value.name
   type    = each.value.type
   records = [each.value.value]
